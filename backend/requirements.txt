@@ -4,7 +4,6 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 asyncpg
-psycopg[binary]
 
 pydantic
 pydantic-settings
@@ -14,8 +13,8 @@ python-multipart
 httpx
 requests
 
+python-jose[cryptography]
 passlib[bcrypt]
-PyJWT
 
 langgraph
 langchain
