@@ -14,10 +14,10 @@ import EditBed from "./pages/Beds/EditBed";
 import EncounterDashboard from "./pages/Encounters/EncounterDashboard";
 import AIChat from "./pages/AI/AIChat";
 import Unauthorized from "./pages/Unauthorized";
-import LabTemplates from "./pages/laboratory/LabTemplates";
-import CreateLabTemplate from "./pages/laboratory/CreateLabTemplate";
-import LabTemplateDetails from "./pages/laboratory/LabTemplateDetails";
-import EditLabTemplate from "./pages/laboratory/EditLabTemplate";
+import LabTemplates from "./pages/Laboratory/LabTemplates";
+import CreateLabTemplate from "./pages/Laboratory/CreateLabTemplate";
+import LabTemplateDetails from "./pages/Laboratory/LabTemplateDetails";
+import EditLabTemplate from "./pages/Laboratory/EditLabTemplate";
 import LaboratoryRoutes from "./routes/LaboratoryRoutes";
 
 import PatientDashboard from "./pages/Patients/PatientDashboard";
