@@ -42,12 +42,9 @@ api.interceptors.response.use(
 
         console.log("Refresh Token:", refreshToken);
 
-        const response = await axios.post(
-          "http://127.0.0.1:8000/auth/refresh",
-          {
-            refresh_token: refreshToken,
-          },
-        );
+        const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+          refresh_token: refreshToken,
+        });
 
         console.log("Refresh Response:", response.data);
 
