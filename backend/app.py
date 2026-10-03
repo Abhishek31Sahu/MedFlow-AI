@@ -51,6 +51,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "https://med-flow-ai-yhhn.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
