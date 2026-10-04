@@ -33,17 +33,51 @@ from services.graph_service import graph_service
 from dotenv import load_dotenv
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from psycopg.rows import dict_row
+from psycopg_pool import AsyncConnectionPool
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+
+from services.graph_service import graph_service
+# keep your existing import for build_graph
+
+
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # the saver needs a plain postgresql:// URL
+    db_url = DATABASE_URL.replace("postgresql+psycopg://", "postgresql://")
 
-    async with checkpointer_context(DATABASE_URL) as checkpointer:
+    pool = AsyncConnectionPool(
+        conninfo=db_url,
+        min_size=1,
+        max_size=5,
+        open=False,
+        kwargs={
+            "autocommit": True,
+            "prepare_threshold": 0,
+            "row_factory": dict_row,
+        },
+        check=AsyncConnectionPool.check_connection,  # drop dead connections
+        max_idle=120,
+    )
+    await pool.open()
 
-        graph_service.graph = (
-            build_graph()
-            .compile(checkpointer=checkpointer)
-        )
+    try:
+        checkpointer = AsyncPostgresSaver(pool)
+        await checkpointer.setup()   # creates the checkpoint tables if missing
+
+        graph_service.graph = build_graph().compile(checkpointer=checkpointer)
 
         yield
+    finally:
+        await pool.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 app = FastAPI(lifespan=lifespan)
