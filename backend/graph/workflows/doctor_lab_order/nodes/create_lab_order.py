@@ -24,12 +24,12 @@ def create_lab_order(
     db = SessionLocal()
     
     if state.get("practitioner_id") is None:
-                    return {
-                        **state,
-                        "error": "Practitioner ID is missing.",
-                        "workflow_status": "FAILED",
-                        "current_step": "PRACTITIONER_ID_MISSING",
-                    }
+        return {
+                 **state,
+                "error": "Practitioner ID is missing.",
+                "workflow_status": "FAILED",
+                "current_step": "PRACTITIONER_ID_MISSING",
+            }
 
     try:
 
