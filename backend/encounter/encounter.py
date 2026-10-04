@@ -292,6 +292,11 @@ def transfer_patient(
 def complete_encounter(
     encounter_id
 ):
+    current_time = (
+            datetime.now(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
 
     encounter = get_encounter(
         encounter_id
@@ -299,9 +304,7 @@ def complete_encounter(
 
     encounter["status"] = "finished"
 
-    encounter["period"]["end"] = (
-        datetime.utcnow().isoformat()
-    )
+    encounter["period"]["end"] = current_time
 
     return fhir_client.update(
         "Encounter",
