@@ -28,6 +28,6 @@ def select_bed(state):
     
     state["selected_bed"] = selected_bed["selected_bed"]
     
-    state["selected_bed_id"] = selected_bed["selected_bed"]["bed_id"]
+    state["selected_bed_id"] = selected_bed["bed_id"]
 
     return state

@@ -2,7 +2,7 @@
 Encounter CRUD Operations
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fhir.client import fhir_client
 from location.location import search_location
@@ -36,6 +36,20 @@ def create_encounter(
 
 ):
 
+    # ------------------------------------------------------
+    # Current UTC time with timezone
+    # ------------------------------------------------------
+
+    current_time = (
+        datetime.now(timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+    # ------------------------------------------------------
+    # Base Encounter resource
+    # ------------------------------------------------------
+
     encounter = {
 
         "resourceType": "Encounter",
@@ -45,9 +59,10 @@ def create_encounter(
         "class": {
 
             "system":
-            "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "http://terminology.hl7.org/CodeSystem/v3-ActCode",
 
-            "code": encounter_type
+            "code":
+                encounter_type,
 
         },
 
@@ -55,7 +70,8 @@ def create_encounter(
 
             {
 
-                "text": encounter_type
+                "text":
+                    encounter_type
 
             }
 
@@ -63,19 +79,22 @@ def create_encounter(
 
         "priority": {
 
-            "text": priority
+            "text":
+                priority
 
         },
 
         "serviceType": {
 
-            "text": service_type
+            "text":
+                service_type
 
         },
 
         "subject": {
 
-            "reference": f"Patient/{patient_id}"
+            "reference":
+                f"Patient/{patient_id}"
 
         },
 
@@ -85,7 +104,8 @@ def create_encounter(
 
                 "individual": {
 
-                    "reference":f"Practitioner/{practitioner_id}"
+                    "reference":
+                        f"Practitioner/{practitioner_id}"
 
                 }
 
@@ -95,7 +115,8 @@ def create_encounter(
 
         "period": {
 
-            "start": datetime.utcnow().isoformat()
+            "start":
+                current_time
 
         },
 
@@ -103,7 +124,8 @@ def create_encounter(
 
             {
 
-                "text": reason
+                "text":
+                    reason
 
             }
 
@@ -116,7 +138,7 @@ def create_encounter(
                 "location": {
 
                     "reference":
-                    f"Location/{location_id}"
+                        f"Location/{location_id}"
 
                 }
 
@@ -126,7 +148,9 @@ def create_encounter(
 
     }
 
+    # ------------------------------------------------------
     # Diagnosis
+    # ------------------------------------------------------
 
     if diagnosis:
 
@@ -136,7 +160,8 @@ def create_encounter(
 
                 "condition": {
 
-                    "display": diagnosis
+                    "display":
+                        diagnosis
 
                 }
 
@@ -144,31 +169,66 @@ def create_encounter(
 
         ]
 
+    # ------------------------------------------------------
     # Hospitalization
+    #
+    # IMPORTANT:
+    # Do not send hospitalization as an empty object.
+    # ------------------------------------------------------
 
-    encounter["hospitalization"] = {}
+    hospitalization = {}
 
     if admission_source:
 
-        encounter["hospitalization"]["admitSource"] = {
+        hospitalization["admitSource"] = {
 
-            "text": admission_source
+            "text":
+                admission_source
 
         }
 
     if discharge_disposition:
 
-        encounter["hospitalization"]["dischargeDisposition"] = {
+        hospitalization[
+            "dischargeDisposition"
+        ] = {
 
-            "text": discharge_disposition
+            "text":
+                discharge_disposition
 
         }
+
+    # Only add hospitalization when it contains data
+    if hospitalization:
+
+        encounter["hospitalization"] = (
+            hospitalization
+        )
+
+    # ------------------------------------------------------
+    # Debug
+    # ------------------------------------------------------
+
+    print(
+        "========== ENCOUNTER REQUEST =========="
+    )
+
+    print(
+        encounter
+    )
+
+    print(
+        "========================================"
+    )
+
+    # ------------------------------------------------------
+    # Create FHIR Encounter
+    # ------------------------------------------------------
 
     return fhir_client.create(
         "Encounter",
         encounter
     )
-
 
 # ==========================================================
 # READ
